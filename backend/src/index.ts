@@ -43,30 +43,79 @@ app.use('/api/complaints', complaintRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/ai', aiRoutes);
 
-// Health check
-app.get('/', (_req: Request, res: Response) => {
-    res.send('CivicAI - JanConnect Backend is running!');
+// Database check middleware
+app.use('/api', (req, res, next) => {
+    // Exclude health check from DB requirement
+    if (req.path === '/health' || req.path === '/') {
+        return next();
+    }
+    const state = mongoose.connection.readyState;
+    // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+    if (state !== 1 && state !== 2) {
+        return res.status(503).json({
+            message: 'Database is currently initializing or unreachable. Please retry in a few seconds.',
+            dbState: state
+        });
+    }
+    next();
 });
 
-// ✅ Bind port FIRST so Render detects an open port immediately
+// Health check with DB status
+app.get('/', (_req: Request, res: Response) => {
+    const states = ['Disconnected', 'Connected', 'Connecting', 'Disconnecting'];
+    res.json({
+        status: 'OK',
+        service: 'CivicAI - JanConnect API',
+        database: states[mongoose.connection.readyState] || 'Unknown',
+        timestamp: new Date().toISOString()
+    });
+});
+
+app.get('/api/health', (_req: Request, res: Response) => {
+    const states = ['Disconnected', 'Connected', 'Connecting', 'Disconnecting'];
+    res.json({
+        status: 'OK',
+        database: states[mongoose.connection.readyState] || 'Unknown',
+        uptime: process.uptime()
+    });
+});
+
+// Connect to MongoDB
+const MONGODB_URI = (process.env.MONGODB_URI || '').trim();
+
+const connectDB = async () => {
+    if (!MONGODB_URI) {
+        console.error('❌ MONGODB_URI is not set! Check your environment variables.');
+        return;
+    }
+
+    const maskedUri = MONGODB_URI.replace(/\/\/(.*):(.*)@/, '//***:***@');
+    console.log(`[DB] Attempting connection to: ${maskedUri}`);
+
+    try {
+        await mongoose.connect(MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of hanging 30s
+            socketTimeoutMS: 45000,
+        });
+        console.log('✅ [DB] Successfully connected to MongoDB Atlas');
+    } catch (error: any) {
+        console.error('❌ [DB] Connection failed:', error.message);
+        console.log('[DB] Retrying connection in 5 seconds...');
+        setTimeout(connectDB, 5000);
+    }
+};
+
+mongoose.connection.on('disconnected', () => {
+    console.warn('⚠️ [DB] MongoDB disconnected. Attempting to reconnect...');
+});
+
+mongoose.connection.on('error', (err) => {
+    console.error('❌ [DB] MongoDB connection error:', err.message);
+});
+
+// Start server
 app.listen(PORT, () => {
     console.log(`🚀 [Server] Running on port ${PORT}`);
     console.log(`🌍 [Env] NODE_ENV=${process.env.NODE_ENV || 'development'}`);
+    connectDB();
 });
-
-// Connect to MongoDB AFTER server is up
-const MONGODB_URI = (process.env.MONGODB_URI || '').trim();
-
-if (!MONGODB_URI) {
-    console.error('❌ MONGODB_URI is not set! Add it to your Render environment variables.');
-} else {
-    const maskedUri = MONGODB_URI.replace(/\/\/(.*):(.*)@/, '//***:***@');
-    console.log(`[DB] Connecting to: ${maskedUri}`);
-
-    mongoose.connect(MONGODB_URI)
-        .then(() => console.log('✅ [DB] Connected to MongoDB Atlas'))
-        .catch((error) => {
-            console.error('❌ [DB] Connection failed:', error.message);
-            console.error('👉 Check MONGODB_URI environment variable in your Render dashboard.');
-        });
-}

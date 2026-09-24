@@ -1,125 +1,227 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: oklch(0.129 0.042 264.695);
-  --color-foreground: oklch(0.985 0.001 106.423);
-  --color-primary: oklch(0.707 0.165 254.624);
-  --color-secondary: oklch(0.269 0.048 262.608);
-  --color-muted: oklch(0.269 0.048 262.608);
-  --color-muted-foreground: oklch(0.708 0.015 256.435);
-  --color-accent: oklch(0.269 0.048 262.608);
-  --color-destructive: oklch(0.396 0.141 25.723);
-  --color-border: oklch(0.269 0.048 262.608);
-  --color-input: oklch(0.269 0.048 262.608);
-  --color-ring: oklch(0.446 0.233 261.24);
-  --radius-xl: 0.75rem;
-}
-
 @layer base {
-  * {
-    border-color: var(--color-border);
+  :root {
+    --bg-app: #f8fafc;
+    --surface-main: #ffffff;
+    --surface-subtle: #f1f5f9;
+    --border-subtle: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+  }
+
+  .dark {
+    --bg-app: #090d16;
+    --surface-main: #0f172a;
+    --surface-subtle: #1e293b;
+    --border-subtle: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
   }
 }
 
 body {
-  background-color: #020617 !important;
-  color: #f8fafc !important;
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "rlig" 1, "calt" 1;
   margin: 0;
   min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.bg-auth-mesh {
-  background-color: #020617;
-  background-image:
-    radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.3) 0, transparent 50%),
-    radial-gradient(at 50% 0%, rgba(59, 130, 246, 0.1) 0, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(30, 58, 138, 0.3) 0, transparent 50%);
+/* SaaS Surface and Elevation Cards */
+.saas-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.dark .saas-card {
+  background-color: #0f172a;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+}
+
+.saas-card-interactive {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.saas-card-interactive:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+
+.dark .saas-card-interactive {
+  background-color: #0f172a;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .saas-card-interactive:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+}
+
+/* Glass Card for compatibility */
 .glass-card {
-  background-color: rgba(2, 6, 23, 0.7) !important;
-  backdrop-filter: blur(24px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8) !important;
-  border-radius: 1.5rem !important;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
 
-/* Fix for overlapping icons and text */
+.dark .glass-card {
+  background-color: #0f172a !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Auth mesh styling */
+.bg-auth-mesh {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(224, 242, 254, 0.6) 0, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(241, 245, 249, 0.8) 0, transparent 50%);
+}
+
+.dark .bg-auth-mesh {
+  background-color: #050811;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.25) 0, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(59, 130, 246, 0.1) 0, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(15, 23, 42, 0.8) 0, transparent 50%);
+}
+
+/* Form input styling */
+.saas-input,
 .input-field {
-  width: 100% !important;
-  background-color: rgba(15, 23, 42, 0.6) !important;
-  border: 1px solid #334155 !important;
-  border-radius: 0.75rem !important;
-  padding-top: 0.75rem !important;
-  padding-bottom: 0.75rem !important;
-  padding-right: 1rem !important;
-  padding-left: 3.25rem !important;
-  /* Increased padding to 52px to ensure clear separation */
-  color: #f8fafc !important;
-  font-size: 1rem !important;
-  line-height: 1.5rem !important;
-  transition: all 200ms ease-in-out !important;
+  width: 100%;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  color: #0f172a;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
+.dark .saas-input,
+.dark .input-field {
+  background-color: #0b1120 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.saas-input:focus,
 .input-field:focus {
   outline: none !important;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
-  background-color: rgba(15, 23, 42, 0.8) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
 }
 
+.saas-input::placeholder,
 .input-field::placeholder {
   color: #94a3b8 !important;
-  opacity: 1 !important;
 }
 
-/* Ensure absolute icons are correctly centered horizontally */
-.relative.group svg {
-  left: 1.25rem !important;
-  /* Equivalent to left-5, ensures icon is centered in the 3.25rem padding */
-}
-
+/* Buttons */
 .btn-primary {
-  width: 100% !important;
-  background-color: #2563eb !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  padding: 0.875rem 1.5rem !important;
-  border-radius: 0.75rem !important;
-  border: none !important;
-  cursor: pointer !important;
-  transition: all 200ms !important;
-  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.25) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.btn-primary:hover {
-  background-color: #3b82f6 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 12px 20px -3px rgba(37, 99, 235, 0.35) !important;
+.btn-primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  box-shadow: 0 2px 4px -1px rgba(37, 99, 235, 0.25);
 }
 
-.btn-primary:active {
-  transform: scale(0.98) !important;
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-primary:disabled {
-  opacity: 0.5 !important;
-  cursor: not-allowed !important;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-@keyframes slow-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  color: #334155;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.animate-slow-spin {
-  animation: slow-spin 20s linear infinite;
+.btn-secondary:hover:not(:disabled) {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.dark .btn-secondary {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #334155;
+}
+
+.dark .btn-secondary:hover:not(:disabled) {
+  background-color: #334155;
+  color: #ffffff;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }

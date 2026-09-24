@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import { Mail, Lock, LogIn, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Mail, Lock, LogIn, ArrowRight, Shield } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -21,52 +22,67 @@ const Login = () => {
             const { token, user } = response.data;
             login(token, user);
 
-            // Role-based redirection
             if (user.role === 'Officer') {
                 navigate('/officer');
             } else {
                 navigate('/dashboard');
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+            setError(err.response?.data?.message || 'Invalid credentials. Please verify and try again.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="flex min-h-screen w-full items-center justify-center bg-auth-mesh p-4 overflow-hidden relative">
-            {/* Background Decorations */}
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl animate-slow-spin" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl animate-slow-spin" />
+        <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 dark:bg-[#090d16] p-4 transition-colors duration-200">
+            <div className="absolute top-4 right-4 z-50">
+                <ThemeToggle />
+            </div>
 
-            <div className="w-full max-w-[440px] z-10">
-                <div className="glass-card p-8 md:p-12 space-y-8">
-                    <div className="text-center space-y-4">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/20 mb-2">
-                            <ShieldCheck className="w-8 h-8 text-blue-500" />
-                        </div>
-                        <h1 className="text-3xl font-bold tracking-tight text-white">Welcome Back</h1>
-                        <p className="text-slate-400">Enter your credentials to access CivicAI</p>
+            <div className="w-full max-w-[420px] space-y-6">
+                {/* Branding Top */}
+                <div className="text-center space-y-2">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white shadow-sm font-bold text-xl mb-1">
+                        <Shield size={24} />
+                    </div>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                        JanConnect Portal
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs">
+                        AI-Powered Civic Grievance & Public Works Platform
+                    </p>
+                </div>
+
+                {/* Form Card */}
+                <div className="saas-card p-6 md:p-8 space-y-6 shadow-sm">
+                    <div className="space-y-1">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                            Sign in to your account
+                        </h2>
+                        <p className="text-xs text-slate-500">
+                            Enter your email and credentials to continue
+                        </p>
                     </div>
 
                     {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                            {error}
+                        <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-rose-700 dark:text-rose-400 p-3 rounded-lg text-xs flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                            <span>{error}</span>
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-300 ml-1">Email Address</label>
-                            <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                Email Address
+                            </label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     type="email"
                                     required
-                                    className="input-field"
-                                    style={{ paddingLeft: '3.25rem' }}
+                                    className="saas-input pl-9"
                                     placeholder="name@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -74,20 +90,18 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center ml-1">
-                                <label className="text-sm font-medium text-slate-300">Password</label>
-                                <button type="button" className="text-xs text-blue-500 hover:text-blue-400 font-medium transition-colors">
-                                    Forgot password?
-                                </button>
+                        <div className="space-y-1.5">
+                            <div className="flex justify-between items-center">
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                    Password
+                                </label>
                             </div>
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     type="password"
                                     required
-                                    className="input-field"
-                                    style={{ paddingLeft: '3.25rem' }}
+                                    className="saas-input pl-9"
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -98,40 +112,41 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="btn-primary mt-4 flex items-center justify-center gap-2 group"
+                            className="w-full btn-primary py-2.5 flex items-center justify-center gap-2 mt-2"
                         >
                             {loading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <>
-                                    <LogIn className="w-5 h-5" />
+                                    <LogIn size={16} />
                                     <span>Sign In</span>
-                                    <ArrowRight className="w-4 h-4 ml-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
                                 </>
                             )}
                         </button>
                     </form>
 
-                    <div className="relative">
+                    <div className="relative pt-2">
                         <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-slate-800" />
+                            <span className="w-full border-t border-slate-200 dark:border-slate-800" />
                         </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-slate-950 px-2 text-slate-500 font-medium">New to CivicAI?</span>
+                        <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-wider">
+                            <span className="bg-white dark:bg-[#0f172a] px-2 text-slate-400">
+                                New to JanConnect?
+                            </span>
                         </div>
                     </div>
 
                     <Link
                         to="/register"
-                        className="w-full flex items-center justify-center p-3 rounded-xl border border-slate-800 hover:bg-slate-900 text-slate-300 font-medium transition-all group"
+                        className="w-full btn-secondary text-xs py-2 flex items-center justify-center gap-1.5"
                     >
-                        Create an account
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        <span>Create Citizen or Officer Account</span>
+                        <ArrowRight size={14} />
                     </Link>
                 </div>
 
-                <p className="mt-8 text-center text-xs text-slate-500">
-                    &copy; 2026 JanConnect. Secure citizen portal.
+                <p className="text-center text-[11px] text-slate-400">
+                    &copy; 2026 JanConnect CivicAI • Secure Government Service Portal
                 </p>
             </div>
         </div>

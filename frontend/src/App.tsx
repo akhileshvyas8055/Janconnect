@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import CitizenDashboard from './pages/CitizenDashboard';
@@ -9,13 +10,16 @@ import TransparencyDashboard from './pages/TransparencyDashboard';
 import GovernmentProjects from './pages/GovernmentProjects';
 import IssuesNearYou from './pages/IssuesNearYou';
 import WhatsAppBotMock from './components/WhatsAppBotMock';
+import AppLayout from './components/AppLayout';
 
 // Full-screen spinner shown while auth is being restored from localStorage
 const AuthLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-950">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-      <p className="text-slate-400 text-sm font-medium tracking-wide">Restoring session...</p>
+  <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#090d16] transition-colors duration-200">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold tracking-wide">
+        Verifying Session...
+      </p>
     </div>
   </div>
 );
@@ -50,15 +54,13 @@ function AppRoutes() {
         path="/map"
         element={
           <ProtectedRoute>
-            <div className="h-screen flex flex-col">
-              <div className="p-4 bg-slate-900 border-b border-white/10 flex justify-between items-center">
-                <h1 className="text-xl font-bold text-white tracking-tight">Civic Network Map</h1>
-                <button onClick={() => window.history.back()} className="text-sm text-blue-400 font-bold">Close Map</button>
+            <AppLayout>
+              <div className="h-[calc(100vh-4rem)] md:h-screen flex flex-col p-4 md:p-6">
+                <div className="flex-1 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-sm relative">
+                  <MapView />
+                </div>
               </div>
-              <div className="flex-1">
-                <MapView />
-              </div>
-            </div>
+            </AppLayout>
           </ProtectedRoute>
         }
       />
@@ -77,14 +79,16 @@ const GlobalWhatsAppBot = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen">
-          <AppRoutes />
-          <GlobalWhatsAppBot />
-        </div>
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen">
+            <AppRoutes />
+            <GlobalWhatsAppBot />
+          </div>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

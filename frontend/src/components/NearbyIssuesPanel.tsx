@@ -3,6 +3,7 @@ import { MapPin, ThumbsUp, Loader2, LocateOff, ArrowUpRight } from 'lucide-react
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ImageLightbox, { ClickableImage } from './ImageLightbox';
+import { StatusBadge, PriorityBadge } from './StatusBadge';
 
 interface NearbyComplaint {
     _id: string;
@@ -18,15 +19,6 @@ interface NearbyComplaint {
     upvotedBy: string[];
     distanceKm: number;
 }
-
-const statusColor: Record<string, string> = {
-    'Submitted': 'bg-blue-500/20 text-blue-400',
-    'Under Review': 'bg-yellow-500/20 text-yellow-400',
-    'In Progress': 'bg-orange-500/20 text-orange-400',
-    'Assigned': 'bg-purple-500/20 text-purple-400',
-    'Resolved': 'bg-green-500/20 text-green-400',
-    'Escalated': 'bg-red-500/20 text-red-400',
-};
 
 interface NearbyIssuesPanelProps {
     radiusKm?: number;
@@ -48,7 +40,6 @@ const NearbyIssuesPanel = ({ radiusKm = 3 }: NearbyIssuesPanelProps) => {
                 try {
                     const res = await api.get(`/complaints/nearby?lat=${lat}&lng=${lng}&radius=${radiusKm}`);
                     setIssues(res.data);
-                    // Pre-populate upvoted set from response
                     if (user) {
                         const myUpvotes = new Set<string>(
                             res.data
@@ -65,7 +56,7 @@ const NearbyIssuesPanel = ({ radiusKm = 3 }: NearbyIssuesPanelProps) => {
             },
             () => setState('denied')
         );
-    }, []);
+    }, [radiusKm, user]);
 
     const handleUpvote = async (id: string) => {
         if (!user) return;
@@ -86,20 +77,20 @@ const NearbyIssuesPanel = ({ radiusKm = 3 }: NearbyIssuesPanelProps) => {
 
     if (state === 'idle' || state === 'requesting') {
         return (
-            <div className="glass-card p-8 border border-white/5 flex items-center gap-3 text-slate-400">
-                <Loader2 size={18} className="animate-spin" />
-                <span className="text-sm">Requesting location to find nearby issues...</span>
+            <div className="p-8 text-center text-slate-500 space-y-2">
+                <Loader2 size={20} className="animate-spin text-blue-600 mx-auto" />
+                <p className="text-xs font-medium">Detecting GPS location to find neighborhood grievances...</p>
             </div>
         );
     }
 
     if (state === 'denied') {
         return (
-            <div className="glass-card p-8 border border-white/5 flex items-center gap-3 text-slate-500">
-                <LocateOff size={20} />
+            <div className="p-6 border border-slate-200 dark:border-white/10 rounded-lg flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                <LocateOff size={20} className="text-slate-400 shrink-0" />
                 <div>
-                    <p className="text-sm font-semibold text-white">Location access denied</p>
-                    <p className="text-xs mt-1">Enable location in your browser to see issues near you.</p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white">Location access required</p>
+                    <p className="text-xs mt-0.5">Please allow location permissions in your browser to view issues near you.</p>
                 </div>
             </div>
         );
@@ -108,75 +99,76 @@ const NearbyIssuesPanel = ({ radiusKm = 3 }: NearbyIssuesPanelProps) => {
     return (
         <>
             <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-3">
                     <div className="flex items-center gap-2">
-                        <MapPin size={16} className="text-blue-400" />
-                        <h3 className="font-bold text-white uppercase tracking-widest text-xs">
-                            Issues Near You ({radiusKm}km radius)
+                        <MapPin size={16} className="text-rose-600" />
+                        <h3 className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider">
+                            Verified Incidents within {radiusKm} km
                         </h3>
                     </div>
-                    {state === 'loading' && <Loader2 size={14} className="animate-spin text-blue-400" />}
-                    <span className="text-xs text-slate-500">{issues.length} found</span>
+                    {state === 'loading' && <Loader2 size={14} className="animate-spin text-blue-600" />}
+                    <span className="text-xs text-slate-500 font-semibold">{issues.length} incidents found</span>
                 </div>
 
                 {issues.length === 0 && state === 'done' && (
-                    <div className="glass-card p-8 border border-white/5 text-center text-slate-500 text-sm">
-                        🎉 No reported issues in your area!
+                    <div className="p-8 text-center text-slate-500 text-xs">
+                        No active issues currently reported within your area radius.
                     </div>
                 )}
 
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {issues.map(issue => (
                         <div
                             key={issue._id}
-                            className="glass-card border border-white/5 hover:border-blue-500/20 transition-all overflow-hidden group"
+                            className="saas-card p-4 hover:border-slate-300 dark:hover:border-white/20 transition-all flex flex-col justify-between space-y-3"
                         >
                             {issue.imageUrl && (
                                 <ClickableImage
                                     src={issue.imageUrl}
                                     alt={issue.title}
-                                    className="h-28 w-full"
+                                    className="h-28 w-full rounded-md object-cover"
                                     onClick={() => setLightboxSrc({ src: issue.imageUrl!, alt: issue.title })}
                                 />
                             )}
-                            <div className="p-4 space-y-2">
+                            <div className="space-y-2">
                                 <div className="flex items-start justify-between gap-2">
-                                    <p className="text-sm font-semibold text-white leading-tight line-clamp-2">{issue.title}</p>
-                                    <ArrowUpRight size={14} className="text-slate-500 shrink-0 mt-0.5" />
+                                    <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-tight line-clamp-2">
+                                        {issue.title}
+                                    </h4>
+                                    <ArrowUpRight size={14} className="text-slate-400 shrink-0" />
                                 </div>
-                                {!issue.imageUrl && (
-                                    <p className="text-xs text-slate-500">{issue.department}</p>
-                                )}
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColor[issue.status] || 'bg-slate-700 text-slate-400'}`}>
-                                        {issue.status}
-                                    </span>
-                                    <span className="text-[10px] text-slate-500 flex items-center gap-1">
+                                    <StatusBadge status={issue.status} size="sm" />
+                                    <PriorityBadge priority={issue.priorityLevel} size="sm" />
+                                    <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1">
                                         <MapPin size={10} /> {issue.distanceKm} km away
                                     </span>
                                 </div>
-                                <div className="flex items-center justify-between pt-1">
-                                    <p className="text-[10px] text-slate-600 truncate">{issue.complaintId}</p>
-                                    <button
-                                        onClick={() => handleUpvote(issue._id)}
-                                        disabled={!user}
-                                        className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${upvotedSet.has(issue._id)
-                                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                            : 'bg-white/5 text-slate-400 hover:bg-white/10 border border-white/5'
-                                            } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                        title={!user ? 'Login to upvote' : upvotedSet.has(issue._id) ? 'Remove upvote' : 'Upvote this issue'}
-                                    >
-                                        <ThumbsUp size={12} />
-                                        {issue.upvotes ?? 0}
-                                    </button>
-                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-white/5">
+                                <span className="font-mono text-[10px] text-slate-400">
+                                    #{issue.complaintId}
+                                </span>
+                                <button
+                                    onClick={() => handleUpvote(issue._id)}
+                                    disabled={!user}
+                                    className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md transition-colors ${
+                                        upvotedSet.has(issue._id)
+                                            ? 'bg-blue-600 text-white'
+                                            : 'btn-secondary'
+                                    } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    title={!user ? 'Login to upvote' : 'Upvote issue'}
+                                >
+                                    <ThumbsUp size={12} />
+                                    <span>{issue.upvotes ?? 0}</span>
+                                </button>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Lightbox */}
             {lightboxSrc && (
                 <ImageLightbox
                     src={lightboxSrc.src}
@@ -184,7 +176,8 @@ const NearbyIssuesPanel = ({ radiusKm = 3 }: NearbyIssuesPanelProps) => {
                     onClose={() => setLightboxSrc(null)}
                 />
             )}
-        </>);
+        </>
+    );
 };
 
 export default NearbyIssuesPanel;

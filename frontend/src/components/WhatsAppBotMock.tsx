@@ -109,7 +109,7 @@ const WhatsAppBotMock = () => {
                     </span>
                 </button>
             ) : (
-                <div className="glass-card w-80 md:w-96 flex flex-col overflow-hidden border border-white/10 shadow-2xl rounded-2xl">
+                <div className="glass-card w-80 md:w-96 flex flex-col overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl rounded-2xl transition-all duration-300">
                     {/* Header */}
                     <div className="bg-emerald-600 p-4 flex justify-between items-center">
                         <div className="flex items-center gap-3">
@@ -125,15 +125,15 @@ const WhatsAppBotMock = () => {
                     </div>
 
                     {/* Chat Area */}
-                    <div className="h-96 overflow-y-auto p-4 space-y-4 bg-slate-950/90 scrollbar-hide">
+                    <div className="h-96 overflow-y-auto p-4 space-y-4 bg-white/95 dark:bg-slate-950/90 scrollbar-hide">
                         {chat.map((msg, i) => (
                             <div key={i} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] p-3 rounded-2xl text-xs font-medium whitespace-pre-line leading-relaxed
                                     ${msg.type === 'user'
                                         ? 'bg-blue-600 text-white rounded-br-none'
                                         : msg.loading
-                                            ? 'bg-slate-800 text-slate-400 rounded-bl-none border border-white/5 animate-pulse'
-                                            : 'bg-slate-800 text-slate-200 rounded-bl-none border border-white/5'
+                                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-bl-none border border-slate-200 dark:border-white/5 animate-pulse'
+                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-none border border-slate-200 dark:border-white/5'
                                     }`}
                                 >
                                     {msg.loading ? (
@@ -156,13 +156,13 @@ const WhatsAppBotMock = () => {
                     </div>
 
                     {/* Input */}
-                    <div className="p-4 bg-slate-900 border-t border-white/5 flex gap-2">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-white/5 flex gap-2">
                         <input
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                             placeholder={awaitingId ? 'Enter Complaint ID...' : 'Type a message...'}
-                            className="flex-1 bg-slate-950 border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors"
+                            className="flex-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 transition-colors"
                             disabled={fetching}
                         />
                         <button

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import api from '../services/api';
-import { Loader2, Camera, Mic, MapPin, Send, Check, X, Sparkles } from 'lucide-react';
+import { Loader2, Camera, Mic, MapPin, Send, Check, X, Sparkles, AlertCircle } from 'lucide-react';
 
 interface ComplaintFormProps {
     onSuccess: () => void;
@@ -60,9 +60,10 @@ const ComplaintForm: React.FC<ComplaintFormProps> = ({ onSuccess, onClose }) => 
             reader.onloadend = async () => {
                 const base64 = reader.result as string;
                 setFormData(prev => ({ ...prev, imageUrl: base64 }));
-                // 🤖 Trigger AI analysis
+                
+                // Trigger AI analysis
                 setAiAnalyzing(true);
-                setAiMessage('🤖 AI is analysing your image...');
+                setAiMessage('Analyzing evidence photo with Gemini AI...');
                 try {
                     const res = await api.post('/ai/analyze-image', { imageBase64: base64 });
                     if (res.data.title && !res.data.error) {
@@ -72,15 +73,15 @@ const ComplaintForm: React.FC<ComplaintFormProps> = ({ onSuccess, onClose }) => 
                             title: res.data.title || prev.title,
                             description: res.data.description || prev.description,
                         }));
-                        setAiMessage(`✨ AI detected: ${res.data.category || 'Civic Issue'} — fields auto-filled!`);
+                        setAiMessage(`AI identified: ${res.data.category || 'Civic Issue'} — Title & description auto-filled.`);
                     } else {
-                        setAiMessage('ℹ️ AI unavailable — please fill in the details manually.');
+                        setAiMessage('AI auto-classification unavailable. Please describe manually.');
                     }
                 } catch {
-                    setAiMessage('ℹ️ AI unavailable — please fill in the details manually.');
+                    setAiMessage('AI analysis skipped. Please fill details manually.');
                 } finally {
                     setAiAnalyzing(false);
-                    setTimeout(() => setAiMessage(''), 5000);
+                    setTimeout(() => setAiMessage(''), 6000);
                 }
             };
             reader.readAsDataURL(file);
@@ -127,7 +128,7 @@ const ComplaintForm: React.FC<ComplaintFormProps> = ({ onSuccess, onClose }) => 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (formData.location.lat === 0) {
-            setError('Please provide your location');
+            setError('Please capture your location using the GPS button below');
             return;
         }
 
@@ -137,84 +138,97 @@ const ComplaintForm: React.FC<ComplaintFormProps> = ({ onSuccess, onClose }) => 
             await api.post('/complaints', formData);
             onSuccess();
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to submit complaint');
+            setError(err.response?.data?.message || 'Failed to submit grievance');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="w-full max-w-2xl bg-slate-950 border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
-                    <h2 className="text-xl font-black text-white uppercase tracking-tight">Report Civic Issue</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-white text-2xl">&times;</button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="w-full max-w-xl saas-card p-0 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+                {/* Modal Header */}
+                <div className="px-6 py-4 border-b border-slate-100 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30">
+                    <div>
+                        <h2 className="text-base font-bold text-slate-900 dark:text-white">
+                            Report Civic Grievance
+                        </h2>
+                        <p className="text-xs text-slate-500">
+                            Our AI will categorize and route this to the appropriate department.
+                        </p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    >
+                        <X size={18} />
+                    </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-6 scrollbar-hide">
+                <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4">
                     {error && (
-                        <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-4 rounded-xl text-sm flex items-center gap-3">
-                            <X size={18} />
-                            {error}
+                        <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-rose-700 dark:text-rose-400 p-3 rounded-lg text-xs flex items-center gap-2">
+                            <AlertCircle size={14} className="shrink-0" />
+                            <span>{error}</span>
                         </div>
                     )}
 
                     {/* AI Status Banner */}
                     {aiMessage && (
-                        <div className={`flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-semibold ${aiAnalyzing
-                                ? 'bg-purple-500/10 border border-purple-500/30 text-purple-300'
-                                : aiMessage.includes('✨')
-                                    ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-300'
-                                    : 'bg-slate-800 border border-white/5 text-slate-400'
-                            }`}>
-                            {aiAnalyzing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                            {aiMessage}
+                        <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium border ${
+                            aiAnalyzing
+                                ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-200 dark:border-purple-800/40 text-purple-700 dark:text-purple-300'
+                                : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-300'
+                        }`}>
+                            {aiAnalyzing ? <Loader2 size={14} className="animate-spin text-purple-600" /> : <Sparkles size={14} />}
+                            <span>{aiMessage}</span>
                         </div>
                     )}
 
-                    {/* Image Preview */}
+                    {/* Image Preview Box */}
                     {formData.imageUrl && (
-                        <div className="relative rounded-xl overflow-hidden border border-white/10 group">
-                            <img src={formData.imageUrl} alt="Preview" className="w-full h-40 object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
+                        <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-white/10 h-36">
+                            <img src={formData.imageUrl} alt="Attached Preview" className="w-full h-full object-cover" />
                             <button
                                 type="button"
                                 onClick={() => setFormData(prev => ({ ...prev, imageUrl: '' }))}
-                                className="absolute top-2 right-2 bg-slate-950/80 hover:bg-red-500 text-white rounded-full p-1.5 transition-colors"
+                                className="absolute top-2 right-2 bg-slate-900/80 hover:bg-rose-600 text-white rounded-full p-1 transition-colors"
                             >
                                 <X size={12} />
                             </button>
-                            <span className="absolute bottom-2 left-3 text-xs text-white/70 font-medium">Photo attached</span>
                         </div>
                     )}
 
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Issue Summary</label>
-                            <input
-                                type="text"
-                                required
-                                className="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-medium"
-                                placeholder="What's the problem?"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Evidence & Context</label>
-                            <textarea
-                                required
-                                rows={4}
-                                className="w-full bg-slate-900 border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none font-medium text-sm leading-relaxed"
-                                placeholder="Describe the severity and impact. Our AI will analyze this to assign priority."
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            />
-                        </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            Issue Summary / Title
+                        </label>
+                        <input
+                            type="text"
+                            required
+                            placeholder="e.g. Deep pothole causing hazard near main market"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                            className="saas-input"
+                        />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                            Detailed Description
+                        </label>
+                        <textarea
+                            required
+                            rows={3}
+                            placeholder="Describe severity, location specifics, and context for municipal officers..."
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            className="saas-input"
+                        />
+                    </div>
+
+                    {/* Multimedia & Geolocation Actions */}
+                    <div className="grid grid-cols-3 gap-3 pt-1">
                         <input
                             type="file"
                             accept="image/*"
@@ -222,68 +236,102 @@ const ComplaintForm: React.FC<ComplaintFormProps> = ({ onSuccess, onClose }) => 
                             ref={fileInputRef}
                             onChange={handleImageChange}
                         />
+
+                        {/* Camera/Photo Button */}
                         <button
                             type="button"
-                            className={`flex flex-col items-center justify-center gap-2 border rounded-2xl p-4 transition-all ${aiAnalyzing
-                                    ? 'bg-purple-500/10 border-purple-500/30 animate-pulse'
-                                    : formData.imageUrl ? 'bg-blue-500/10 border-blue-500/30' : 'bg-slate-900 border-white/5 hover:border-blue-500/30'
-                                }`}
                             onClick={() => fileInputRef.current?.click()}
+                            className={`p-3 rounded-lg border text-xs font-semibold flex flex-col items-center justify-center gap-1.5 transition-all ${
+                                formData.imageUrl
+                                    ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/40'
+                                    : 'btn-secondary'
+                            }`}
                         >
-                            {aiAnalyzing ? <Loader2 size={24} className="animate-spin text-purple-400" /> : formData.imageUrl ? <Check className="text-blue-400" size={24} /> : <Camera size={24} className="text-slate-400" />}
-                            <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
-                                {aiAnalyzing ? 'AI Scanning...' : formData.imageUrl ? 'Photo Added' : 'Add Photo'}
+                            {aiAnalyzing ? (
+                                <Loader2 size={16} className="animate-spin text-purple-600" />
+                            ) : formData.imageUrl ? (
+                                <Check size={16} className="text-blue-600" />
+                            ) : (
+                                <Camera size={16} className="text-slate-500" />
+                            )}
+                            <span className="text-[11px]">
+                                {aiAnalyzing ? 'Analyzing' : formData.imageUrl ? 'Photo Set' : 'Attach Photo'}
                             </span>
                         </button>
 
+                        {/* Voice Memo Button */}
                         <button
                             type="button"
-                            className={`flex flex-col items-center justify-center gap-2 border rounded-2xl p-4 transition-all ${recording ? 'bg-red-500/20 border-red-500/50 animate-pulse' : formData.voiceUrl ? 'bg-purple-500/10 border-purple-500/30' : 'bg-slate-900 border-white/5 hover:border-purple-500/30'}`}
                             onClick={recording ? stopRecording : startRecording}
+                            className={`p-3 rounded-lg border text-xs font-semibold flex flex-col items-center justify-center gap-1.5 transition-all ${
+                                recording
+                                    ? 'bg-rose-50 text-rose-700 border-rose-300 animate-pulse'
+                                    : formData.voiceUrl
+                                        ? 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/40'
+                                        : 'btn-secondary'
+                            }`}
                         >
-                            {recording ? <Mic className="text-red-500" size={24} /> : formData.voiceUrl ? <Check className="text-purple-400" size={24} /> : <Mic size={24} className="text-slate-400" />}
-                            <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
-                                {recording ? 'Recording...' : formData.voiceUrl ? 'Voice Saved' : 'Voice Memo'}
+                            {recording ? (
+                                <Mic size={16} className="text-rose-600" />
+                            ) : formData.voiceUrl ? (
+                                <Check size={16} className="text-purple-600" />
+                            ) : (
+                                <Mic size={16} className="text-slate-500" />
+                            )}
+                            <span className="text-[11px]">
+                                {recording ? 'Recording...' : formData.voiceUrl ? 'Voice Memo' : 'Record Audio'}
                             </span>
                         </button>
 
+                        {/* GPS Location Button */}
                         <button
                             type="button"
                             disabled={locating}
-                            className={`flex flex-col items-center justify-center gap-2 border rounded-2xl p-4 transition-all ${formData.location.lat !== 0 ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-900 border-white/5 hover:border-emerald-500/30'}`}
                             onClick={handleGetLocation}
+                            className={`p-3 rounded-lg border text-xs font-semibold flex flex-col items-center justify-center gap-1.5 transition-all ${
+                                formData.location.lat !== 0
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/40'
+                                    : 'btn-secondary'
+                            }`}
                         >
-                            {locating ? <Loader2 size={24} className="animate-spin text-emerald-400" /> : <MapPin size={24} className={formData.location.lat !== 0 ? 'text-emerald-400' : 'text-slate-400'} />}
-                            <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
-                                {locating ? 'Locating...' : formData.location.lat !== 0 ? 'Geo-Tagged' : 'Get Location'}
+                            {locating ? (
+                                <Loader2 size={16} className="animate-spin text-emerald-600" />
+                            ) : formData.location.lat !== 0 ? (
+                                <Check size={16} className="text-emerald-600" />
+                            ) : (
+                                <MapPin size={16} className="text-slate-500" />
+                            )}
+                            <span className="text-[11px]">
+                                {locating ? 'Locating...' : formData.location.lat !== 0 ? 'Geo-Tagged' : 'Tag GPS'}
                             </span>
                         </button>
                     </div>
 
-                    <div className="pt-6 border-t border-white/5 flex gap-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="flex-1 py-4 bg-white/5 hover:bg-white/10 rounded-2xl font-black text-slate-400 hover:text-white transition-all text-xs uppercase tracking-widest"
-                        >
-                            Discard
-                        </button>
+                    {/* Footer Buttons */}
+                    <div className="flex gap-3 pt-3 border-t border-slate-100 dark:border-white/5">
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 py-4 bg-blue-600 hover:bg-blue-700 rounded-2xl font-black text-white text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-blue-600/20 disabled:opacity-50"
+                            className="flex-1 btn-primary py-2.5 flex items-center justify-center gap-2 text-xs"
                         >
                             {loading ? (
                                 <>
-                                    <Loader2 className="animate-spin" size={18} />
-                                    Analyzing...
+                                    <Loader2 className="animate-spin" size={14} />
+                                    <span>Submitting to Department...</span>
                                 </>
                             ) : (
                                 <>
-                                    <Send size={18} />
-                                    Dispatch Grievance
+                                    <Send size={14} />
+                                    <span>Dispatch Grievance</span>
                                 </>
                             )}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="btn-secondary text-xs px-4"
+                        >
+                            Cancel
                         </button>
                     </div>
                 </form>

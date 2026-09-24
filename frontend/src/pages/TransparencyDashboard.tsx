@@ -20,10 +20,11 @@ import {
     TrendingUp,
     AlertCircle,
     CheckCircle2,
-    Clock,
+    Users,
     Activity,
-    Users
+    Layers
 } from 'lucide-react';
+import AppLayout from '../components/AppLayout';
 
 ChartJS.register(
     CategoryScale,
@@ -44,10 +45,9 @@ const TransparencyDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await api.get('/complaints/my'); // Using all complaints for stats
+                const res = await api.get('/complaints/my');
                 const data = res.data;
 
-                // Process data for charts
                 const deptCounts: any = {};
                 const statusCounts: any = { 'Resolved': 0, 'In Progress': 0, 'Submitted': 0, 'Escalated': 0 };
 
@@ -64,7 +64,7 @@ const TransparencyDashboard = () => {
                     deptData: Object.values(deptCounts),
                     statusLabels: Object.keys(statusCounts),
                     statusData: Object.values(statusCounts),
-                    avgResolution: '4.2 Days' // Mocked for now
+                    avgResolution: '4.2 Days'
                 });
             } catch (err) {
                 console.error(err);
@@ -75,53 +75,39 @@ const TransparencyDashboard = () => {
         fetchStats();
     }, []);
 
-    if (loading) return (
-        <div className="h-screen flex flex-col items-center justify-center bg-slate-950 gap-4">
-            <Activity className="text-blue-500 animate-pulse" size={32} />
-            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Aggregating Civic Metrics...</p>
-        </div>
-    );
-
     const barData = {
-        labels: stats.deptLabels,
+        labels: stats?.deptLabels || [],
         datasets: [{
             label: 'Issues by Department',
-            data: stats.deptData,
-            backgroundColor: 'rgba(59, 130, 246, 0.5)',
-            borderColor: 'rgb(59, 130, 246)',
-            borderWidth: 2,
-            borderRadius: 8,
+            data: stats?.deptData || [],
+            backgroundColor: '#3b82f6',
+            borderRadius: 6,
         }]
     };
 
     const doughnutData = {
-        labels: stats.statusLabels,
+        labels: stats?.statusLabels || [],
         datasets: [{
-            data: stats.statusData,
+            data: stats?.statusData || [],
             backgroundColor: [
-                'rgba(34, 197, 94, 0.4)',
-                'rgba(245, 158, 11, 0.4)',
-                'rgba(59, 130, 246, 0.4)',
-                'rgba(239, 68, 68, 0.4)',
-            ],
-            borderColor: [
-                '#22c55e',
+                '#10b981',
                 '#f59e0b',
                 '#3b82f6',
                 '#ef4444',
             ],
-            borderWidth: 2,
+            borderWidth: 0,
         }]
     };
 
     const chartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
         },
         scales: {
             y: {
-                grid: { color: 'rgba(255,255,255,0.05)' },
+                grid: { color: 'rgba(150, 150, 150, 0.1)' },
                 ticks: { color: '#64748b' }
             },
             x: {
@@ -132,89 +118,159 @@ const TransparencyDashboard = () => {
     };
 
     return (
-        <div className="p-6 max-w-7xl mx-auto space-y-8 bg-auth-mesh min-h-screen">
-            <header className="flex flex-col md:flex-row justify-between items-center bg-slate-900/50 p-8 rounded-3xl border border-white/10 glass-card gap-6">
-                <div className="space-y-2">
-                    <h1 className="text-3xl font-black text-white tracking-tight">System Transparency</h1>
-                    <p className="text-slate-400 font-medium">Real-time performance metrics of JanConnect departments</p>
-                </div>
-                <div className="flex gap-4">
-                    <StatPill label="Uptime" value="99.9%" />
-                    <StatPill label="Avg SLA" value={stats.avgResolution} />
-                </div>
-            </header>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <MetricCard label="Total Grievances" value={stats.total} trend="+12%" icon={<TrendingUp size={20} />} />
-                <MetricCard label="Resolution Rate" value={`${Math.round((stats.resolved / stats.total) * 100)}%`} trend="+5%" icon={<CheckCircle2 size={20} className="text-emerald-500" />} />
-                <MetricCard label="Escalation Count" value={stats.escalated} trend="-2%" icon={<AlertCircle size={20} className="text-red-500" />} />
-                <MetricCard label="Active Citizens" value="1.2k" trend="+8%" icon={<Users size={20} />} />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 glass-card p-8 border border-white/5 space-y-6">
-                    <div className="flex justify-between items-center">
-                        <h3 className="font-bold text-white uppercase tracking-widest text-xs">Departmental Performance</h3>
-                        <Activity size={16} className="text-blue-500" />
+        <AppLayout>
+            <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+                {/* Header Context */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 dark:border-white/10 pb-6">
+                    <div>
+                        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                            <span>Civic Portal</span>
+                            <span>/</span>
+                            <span className="text-blue-600 dark:text-blue-400">Public Accountability</span>
+                        </div>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+                            <Activity className="w-6 h-6 text-blue-600" />
+                            System Transparency & SLA Analytics
+                        </h1>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                            Real-time resolution metrics and accountability data across municipal departments.
+                        </p>
                     </div>
-                    <div className="h-64">
-                        <Bar data={barData} options={chartOptions} />
+
+                    <div className="flex items-center gap-3">
+                        <div className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+                            SLA Uptime: 99.9%
+                        </div>
                     </div>
                 </div>
 
-                <div className="glass-card p-8 border border-white/5 space-y-6">
-                    <div className="flex justify-between items-center">
-                        <h3 className="font-bold text-white uppercase tracking-widest text-xs">Lifecycle Distribution</h3>
-                        <Clock size={16} className="text-amber-500" />
+                {loading ? (
+                    <div className="saas-card p-12 text-center text-slate-500 space-y-3">
+                        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+                        <p className="text-sm font-medium">Aggregating civic transparency metrics...</p>
                     </div>
-                    <div className="h-64 flex items-center justify-center">
-                        <Doughnut data={doughnutData} options={{ plugins: { legend: { position: 'bottom', labels: { color: '#64748b', boxWidth: 12, padding: 20 } } } }} />
-                    </div>
-                </div>
-            </div>
+                ) : (
+                    <>
+                        {/* KPI Metrics */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <MetricCard
+                                label="Total Grievances"
+                                value={stats.total}
+                                trend="+12% this month"
+                                icon={<TrendingUp size={20} className="text-blue-600" />}
+                            />
+                            <MetricCard
+                                label="Resolution Rate"
+                                value={`${stats.total ? Math.round((stats.resolved / stats.total) * 100) : 0}%`}
+                                trend="+5% SLA compliance"
+                                icon={<CheckCircle2 size={20} className="text-emerald-600" />}
+                            />
+                            <MetricCard
+                                label="SLA Escalations"
+                                value={stats.escalated}
+                                trend="-2% vs last cycle"
+                                icon={<AlertCircle size={20} className="text-rose-600" />}
+                            />
+                            <MetricCard
+                                label="Citizen Coverage"
+                                value="1.2k"
+                                trend="+8% participating"
+                                icon={<Users size={20} className="text-indigo-600" />}
+                            />
+                        </div>
 
-            <div className="glass-card p-8 border border-white/5 space-y-6">
-                <div className="flex justify-between items-center">
-                    <h3 className="font-bold text-white uppercase tracking-widest text-xs">Strategic Area Breakdown</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {stats.deptLabels.map((label: string, idx: number) => (
-                        <div key={label} className="space-y-2">
-                            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                                <span className="text-slate-400">{label}</span>
-                                <span className="text-blue-400">{stats.deptData[idx]} Issues</span>
+                        {/* Visual Analytics Charts */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <div className="lg:col-span-2 saas-card p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-3">
+                                    <div>
+                                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">
+                                            Departmental Grievance Distribution
+                                        </h3>
+                                        <p className="text-xs text-slate-500">Incident volume across public works</p>
+                                    </div>
+                                    <Layers size={16} className="text-blue-600" />
+                                </div>
+                                <div className="h-64">
+                                    <Bar data={barData} options={chartOptions} />
+                                </div>
                             </div>
-                            <div className="h-2 bg-slate-900 rounded-full overflow-hidden border border-white/5">
-                                <div
-                                    className="h-full bg-gradient-to-r from-blue-600 to-indigo-500 rounded-full"
-                                    style={{ width: `${(stats.deptData[idx] / stats.total) * 100}%` }}
-                                />
+
+                            <div className="saas-card p-6 space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/5 pb-3">
+                                    <div>
+                                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">
+                                            Status Lifecycle Breakdown
+                                        </h3>
+                                        <p className="text-xs text-slate-500">Active vs resolved cases</p>
+                                    </div>
+                                </div>
+                                <div className="h-64 flex items-center justify-center">
+                                    <Doughnut
+                                        data={doughnutData}
+                                        options={{
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom',
+                                                    labels: { color: '#64748b', boxWidth: 12, padding: 16 }
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </div>
                             </div>
                         </div>
-                    ))}
-                </div>
+
+                        {/* Breakdown Progress List */}
+                        <div className="saas-card p-6 space-y-4">
+                            <h3 className="font-bold text-slate-900 dark:text-white text-sm border-b border-slate-100 dark:border-white/5 pb-3">
+                                Department Volume Ratios
+                            </h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {stats.deptLabels.map((label: string, idx: number) => (
+                                    <div key={label} className="space-y-1.5">
+                                        <div className="flex justify-between text-xs font-semibold">
+                                            <span className="text-slate-600 dark:text-slate-400">{label}</span>
+                                            <span className="text-blue-600 dark:text-blue-400 font-bold">
+                                                {stats.deptData[idx]} issues
+                                            </span>
+                                        </div>
+                                        <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-blue-600 rounded-full"
+                                                style={{ width: `${stats.total ? (stats.deptData[idx] / stats.total) * 100 : 0}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
-        </div>
+        </AppLayout>
     );
 };
 
 const MetricCard = ({ label, value, trend, icon }: any) => (
-    <div className="glass-card p-6 border border-white/5 group hover:border-white/10 transition-all space-y-3">
+    <div className="saas-card p-5 space-y-2">
         <div className="flex justify-between items-start">
-            <div className="bg-white/5 p-2 rounded-xl border border-white/5 group-hover:scale-110 transition-transform">{icon}</div>
-            <span className={`text-[10px] font-bold ${trend.startsWith('+') ? 'text-emerald-500' : 'text-red-500'}`}>{trend}</span>
+            <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-white/5">
+                {icon}
+            </div>
+            <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                {trend}
+            </span>
         </div>
         <div>
-            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest leading-none">{label}</p>
-            <p className="text-2xl font-black text-white mt-1">{value}</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                {label}
+            </p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mt-0.5">
+                {value}
+            </p>
         </div>
-    </div>
-);
-
-const StatPill = ({ label, value }: any) => (
-    <div className="bg-slate-950/50 border border-white/10 rounded-2xl px-4 py-2 flex flex-col items-center">
-        <span className="text-[8px] text-slate-500 uppercase font-bold tracking-tighter leading-none">{label}</span>
-        <span className="text-sm font-black text-white">{value}</span>
     </div>
 );
 

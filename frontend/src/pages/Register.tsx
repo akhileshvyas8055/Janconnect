@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
-import { User, Mail, Lock, UserPlus, ArrowRight, ShieldCheck, Building2 } from 'lucide-react';
+import { User, Mail, Lock, UserPlus, ArrowRight, ShieldCheck, Building2, Shield } from 'lucide-react';
+import ThemeToggle from '../components/ThemeToggle';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -34,90 +35,108 @@ const Register = () => {
     };
 
     return (
-        <div className="flex min-h-screen w-full items-center justify-center bg-auth-mesh p-4 overflow-hidden relative">
-            {/* Background Decorations */}
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-600/10 rounded-full blur-3xl animate-slow-spin" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl animate-slow-spin" />
+        <div className="flex min-h-screen w-full items-center justify-center bg-slate-50 dark:bg-[#090d16] p-4 transition-colors duration-200 py-8">
+            <div className="absolute top-4 right-4 z-50">
+                <ThemeToggle />
+            </div>
 
-            <div className="w-full max-w-[480px] z-10 py-8">
-                <div className="glass-card p-8 md:p-12 space-y-8">
-                    <div className="text-center space-y-4">
-                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/20 mb-2">
-                            <UserPlus className="w-8 h-8 text-blue-500" />
-                        </div>
-                        <h1 className="text-3xl font-bold tracking-tight text-white">Create Account</h1>
-                        <p className="text-slate-400">Join the JanConnect civic network</p>
+            <div className="w-full max-w-[460px] space-y-6">
+                {/* Branding Top */}
+                <div className="text-center space-y-2">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white shadow-sm font-bold text-xl mb-1">
+                        <Shield size={24} />
+                    </div>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                        Create Account
+                    </h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs">
+                        Join JanConnect as a verified Citizen or Department Officer
+                    </p>
+                </div>
+
+                {/* Form Card */}
+                <div className="saas-card p-6 md:p-8 space-y-6 shadow-sm">
+                    <div className="space-y-1">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                            Registration details
+                        </h2>
+                        <p className="text-xs text-slate-500">
+                            Fill in your profile details to register
+                        </p>
                     </div>
 
                     {error && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                            {error}
+                        <div className="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 text-rose-700 dark:text-rose-400 p-3 rounded-lg text-xs flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                            <span>{error}</span>
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-300 ml-1">Full Name</label>
-                                <div className="relative group">
-                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
-                                    <input
-                                        name="name"
-                                        type="text"
-                                        required
-                                        className="input-field"
-                                        style={{ paddingLeft: '3.25rem' }}
-                                        placeholder="Animesh Jain"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-300 ml-1">Email Address</label>
-                                <div className="relative group">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
-                                    <input
-                                        name="email"
-                                        type="email"
-                                        required
-                                        className="input-field"
-                                        style={{ paddingLeft: '3.25rem' }}
-                                        placeholder="name@example.com"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                    />
-                                </div>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                Full Name
+                            </label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input
+                                    name="name"
+                                    type="text"
+                                    required
+                                    className="saas-input pl-9"
+                                    placeholder="Enter full name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-300 ml-1">Password</label>
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                Email Address
+                            </label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input
+                                    name="email"
+                                    type="email"
+                                    required
+                                    className="saas-input pl-9"
+                                    placeholder="name@example.com"
+                                    value={formData.email}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                 <input
                                     name="password"
                                     type="password"
                                     required
-                                    className="input-field"
-                                    style={{ paddingLeft: '3.25rem' }}
-                                    placeholder="••••••••"
+                                    className="saas-input pl-9"
+                                    placeholder="Create password"
                                     value={formData.password}
                                     onChange={handleInputChange}
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-300 ml-1">Your Role</label>
-                                <div className="relative group">
-                                    <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                    Account Role
+                                </label>
+                                <div className="relative">
+                                    <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                                     <select
                                         name="role"
-                                        className="input-field appearance-none cursor-pointer"
-                                        style={{ colorScheme: 'dark', paddingLeft: '3.25rem' }}
+                                        className="saas-input pl-9 cursor-pointer"
                                         value={formData.role}
                                         onChange={handleInputChange}
                                     >
@@ -128,18 +147,19 @@ const Register = () => {
                             </div>
 
                             {formData.role === 'Officer' && (
-                                <div className="space-y-2 animate-in fade-in slide-in-from-right-2">
-                                    <label className="text-sm font-medium text-slate-300 ml-1">Department</label>
-                                    <div className="relative group">
-                                        <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-blue-500 transition-colors pointer-events-none" />
+                                <div className="space-y-1.5 animate-in fade-in">
+                                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                        Department
+                                    </label>
+                                    <div className="relative">
+                                        <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                                         <select
                                             name="department"
-                                            className="input-field appearance-none cursor-pointer"
-                                            style={{ colorScheme: 'dark', paddingLeft: '3.25rem' }}
+                                            className="saas-input pl-9 cursor-pointer"
                                             value={formData.department}
                                             onChange={handleInputChange}
                                         >
-                                            <option value="General Administration">General Administration</option>
+                                            <option value="General Administration">General Admin</option>
                                             <option value="Public Works">Public Works</option>
                                             <option value="Health">Health</option>
                                             <option value="Education">Education</option>
@@ -154,40 +174,41 @@ const Register = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="btn-primary mt-4 flex items-center justify-center gap-2 group"
+                            className="w-full btn-primary py-2.5 flex items-center justify-center gap-2 mt-4"
                         >
                             {loading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <>
-                                    <UserPlus className="w-5 h-5" />
-                                    <span>Create Account</span>
-                                    <ArrowRight className="w-4 h-4 ml-1 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                                    <UserPlus size={16} />
+                                    <span>Complete Registration</span>
                                 </>
                             )}
                         </button>
                     </form>
 
-                    <div className="relative">
+                    <div className="relative pt-2">
                         <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-slate-800" />
+                            <span className="w-full border-t border-slate-200 dark:border-slate-800" />
                         </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-slate-950 px-2 text-slate-500 font-medium">Already have an account?</span>
+                        <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-wider">
+                            <span className="bg-white dark:bg-[#0f172a] px-2 text-slate-400">
+                                Already registered?
+                            </span>
                         </div>
                     </div>
 
                     <Link
                         to="/login"
-                        className="w-full flex items-center justify-center p-3 rounded-xl border border-slate-800 hover:bg-slate-900 text-slate-300 font-medium transition-all group"
+                        className="w-full btn-secondary text-xs py-2 flex items-center justify-center gap-1.5"
                     >
-                        Sign in instead
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        <span>Sign in to existing account</span>
+                        <ArrowRight size={14} />
                     </Link>
                 </div>
 
-                <p className="mt-8 text-center text-xs text-slate-500">
-                    By joining, you agree to our Terms of Service.
+                <p className="text-center text-[11px] text-slate-400">
+                    By registering, you agree to our Terms of Service & Privacy Policy.
                 </p>
             </div>
         </div>

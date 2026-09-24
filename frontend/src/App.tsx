@@ -9,6 +9,7 @@ import MapView from './pages/MapView';
 import TransparencyDashboard from './pages/TransparencyDashboard';
 import GovernmentProjects from './pages/GovernmentProjects';
 import IssuesNearYou from './pages/IssuesNearYou';
+import CivicIntelligence from './pages/CivicIntelligence';
 import WhatsAppBotMock from './components/WhatsAppBotMock';
 import AppLayout from './components/AppLayout';
 
@@ -50,6 +51,7 @@ function AppRoutes() {
       <Route path="/transparency" element={<ProtectedRoute><TransparencyDashboard /></ProtectedRoute>} />
       <Route path="/projects" element={<ProtectedRoute><GovernmentProjects /></ProtectedRoute>} />
       <Route path="/nearby" element={<ProtectedRoute roles={['Citizen']}><IssuesNearYou /></ProtectedRoute>} />
+      <Route path="/civic-intelligence" element={<ProtectedRoute roles={['Officer', 'Admin', 'Higher Authority']}><CivicIntelligence /></ProtectedRoute>} />
       <Route
         path="/map"
         element={

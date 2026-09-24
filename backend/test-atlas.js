@@ -49,7 +49,7 @@ async function run() {
     console.log('\n--- DIAGNOSIS ---');
     console.log('Authentication is still failing.');
     console.log('1. PLEASE CHECK: Did you create the user "jainanimesh029_db_user" in ATLAS?');
-    console.log('2. PLEASE CHECK: Is the password EXACTLY "X4_J-!FniF3XDJ@"?');
+    console.log('2. PLEASE CHECK: Is the password in your local .env current and correctly URL-encoded?');
     console.log('3. PLEASE CHECK: Go to "Network Access" and ensure 0.0.0.0/0 is added.');
     console.log('\nIf everything looks correct in Atlas, try creating a NEW user with a simple password (no special characters) and update your .env file.');
 }

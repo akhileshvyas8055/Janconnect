@@ -6,6 +6,7 @@ import authRoutes from './routes/auth-routes';
 import complaintRoutes from './routes/complaint-routes';
 import projectRoutes from './routes/project-routes';
 import aiRoutes from './routes/ai-routes';
+import civicIntelligenceRoutes from './routes/civic-intelligence-routes';
 import { initSlaEscalationJob } from './services/escalation-service';
 
 dotenv.config();
@@ -34,6 +35,9 @@ app.use(cors({
     },
     credentials: true
 }));
+// Keep CSV requests on their route-specific 5 MB body limit instead of the
+// unrelated 50 MB JSON parser used by the existing APIs.
+app.use('/api/civic-intelligence', civicIntelligenceRoutes);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 

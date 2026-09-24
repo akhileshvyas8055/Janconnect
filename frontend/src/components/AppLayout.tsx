@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   User,
-  Plus
+  Plus,
+  BrainCircuit
 } from 'lucide-react';
 
 interface AppLayoutProps {
@@ -29,6 +30,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, onOpenComplaintM
 
   const isCitizen = user?.role === 'Citizen';
   const isOfficer = user?.role === 'Officer';
+  const canAccessCivicIntelligence = user?.role === 'Officer' || user?.role === 'Admin' || user?.role === 'Higher Authority';
 
   const navItems = [
     ...(isCitizen
@@ -43,6 +45,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children, onOpenComplaintM
     { label: 'Strategic Map', path: '/map', icon: Map },
     { label: 'Public Works', path: '/projects', icon: Construction },
     { label: 'Transparency', path: '/transparency', icon: BarChart3 },
+    ...(canAccessCivicIntelligence
+      ? [{ label: 'Civic Intelligence', path: '/civic-intelligence', icon: BrainCircuit }]
+      : []),
   ];
 
   return (

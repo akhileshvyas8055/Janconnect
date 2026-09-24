@@ -110,3 +110,69 @@ export interface Project {
     createdAt?: string;
     updatedAt?: string;
 }
+
+export type CivicPriority = 'Low' | 'Medium' | 'High' | 'Critical';
+
+export interface CivicDatasetSummary {
+    id: string;
+    filename: string;
+    recordCount: number;
+    validRecords: number;
+    invalidRecords: number;
+    duplicateInputCount: number;
+    source: string;
+    uploadedAt: string;
+    processingStatus: 'Uploaded' | 'Validated' | 'Ready' | 'Analyzing' | 'Analyzed' | 'Failed';
+    analysisError?: string;
+}
+
+export interface CivicRecord {
+    complaintId?: string;
+    title?: string;
+    description: string;
+    category?: string;
+    department?: string;
+    severity?: CivicPriority;
+    priority?: string;
+    status?: string;
+    latitude?: number;
+    longitude?: number;
+    createdAt?: string;
+    imageUrl?: string;
+    audioUrl?: string;
+    sourceRow: number;
+}
+
+export interface CivicValidationError {
+    row: number;
+    field: string;
+    message: string;
+}
+
+export interface CivicCluster {
+    _id: string;
+    clusterId: string;
+    datasetId: string;
+    title: string;
+    summary: string;
+    category?: string;
+    department?: string;
+    complaints: Array<{ complaintId?: string; sourceRow: number; relationship: 'near-duplicate' | 'related' | 'single' }>;
+    complaintCount: number;
+    centroid?: { latitude: number; longitude: number };
+    geographicRadiusMeters?: number;
+    severity: CivicPriority;
+    priorityLevel: CivicPriority;
+    priorityScore: number;
+    confidence: number;
+    evidence: {
+        descriptionCount: number;
+        imageEvidenceCount: number;
+        audioEvidenceCount: number;
+        locationEvidenceCount: number;
+        references: Array<{ complaintId?: string; sourceRow: number; type: 'description' | 'image' | 'audio' | 'location'; value?: string }>;
+    };
+    priorityFactors: { severity: number; confidence: number; evidence: number; independentReports: number; geographicConcentration: number; recency: number };
+    explanation: string;
+    analysisMethod: 'deterministic' | 'gemini-assisted';
+}

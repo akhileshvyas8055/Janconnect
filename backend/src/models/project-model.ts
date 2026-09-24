@@ -3,7 +3,9 @@ import mongoose, { Schema, Document } from 'mongoose';
 export enum ProjectStatus {
     STARTED = 'Started',
     ONGOING = 'Ongoing',
-    COMPLETED = 'Completed'
+    COMPLETED = 'Completed',
+    DELAYED = 'Delayed',
+    CANCELLED = 'Cancelled'
 }
 
 export interface IProject extends Document {
@@ -14,9 +16,11 @@ export interface IProject extends Document {
     location: string;
     department: string;
     ratings: Array<{
+        _id?: mongoose.Types.ObjectId;
         userId: mongoose.Types.ObjectId;
         score: number;
         feedback?: string;
+        createdAt?: Date;
     }>;
     proofImages: string[];
     createdAt: Date;
@@ -33,7 +37,8 @@ const ProjectSchema: Schema = new Schema({
     ratings: [{
         userId: { type: Schema.Types.ObjectId, ref: 'User' },
         score: { type: Number, min: 1, max: 5 },
-        feedback: { type: String }
+        feedback: { type: String },
+        createdAt: { type: Date, default: Date.now }
     }],
     proofImages: [{ type: String }]
 }, { timestamps: true });

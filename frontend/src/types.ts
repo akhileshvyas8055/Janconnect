@@ -59,3 +59,54 @@ export interface Complaint {
     }>;
     createdAt: string;
 }
+
+export type ProjectStatus = 'Started' | 'Ongoing' | 'Completed' | 'Delayed' | 'Cancelled';
+
+export const ProjectStatus = {
+    STARTED: 'Started' as ProjectStatus,
+    ONGOING: 'Ongoing' as ProjectStatus,
+    COMPLETED: 'Completed' as ProjectStatus,
+    DELAYED: 'Delayed' as ProjectStatus,
+    CANCELLED: 'Cancelled' as ProjectStatus,
+};
+
+export interface ProjectRating {
+    _id?: string;
+    userId: string | { _id: string; name: string; role?: string };
+    score: number;
+    feedback?: string;
+    createdAt?: string;
+}
+
+export interface ProjectReviewItem {
+    _id?: string;
+    score: number;
+    feedback: string;
+    createdAt: string;
+    reviewer: {
+        name: string;
+        role: string;
+    };
+}
+
+export interface ProjectReviewsResponse {
+    projectId: string;
+    title: string;
+    averageRating: number;
+    totalReviews: number;
+    reviews: ProjectReviewItem[];
+}
+
+export interface Project {
+    _id: string;
+    title: string;
+    description: string;
+    budget: string;
+    status: ProjectStatus;
+    location: string;
+    department: string;
+    ratings: ProjectRating[];
+    proofImages?: string[];
+    createdAt?: string;
+    updatedAt?: string;
+}

@@ -28,7 +28,12 @@ const Login = () => {
                 navigate('/dashboard');
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Invalid credentials. Please verify and try again.');
+            const rawMsg = err.response?.data?.message || err.message || '';
+            if (rawMsg.includes('buffering timed out') || rawMsg.includes('timed out')) {
+                setError('Unable to reach the database server. Please ensure the database connection string and IP access rules are configured properly.');
+            } else {
+                setError(rawMsg || 'Invalid credentials. Please verify and try again.');
+            }
         } finally {
             setLoading(false);
         }
